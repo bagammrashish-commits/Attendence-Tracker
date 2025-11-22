@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MoreVertical, BookOpen, AlertCircle, Plus, X } from 'lucide-react';
+import { MoreVertical, BookOpen, AlertCircle, Plus, X, User } from 'lucide-react';
 
 export const Subjects = () => {
   const { subjects, addSubject } = useApp();
@@ -56,7 +56,7 @@ export const Subjects = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         whileHover={{ y: -8 }}
-                        className={`bg-white rounded-3xl p-6 shadow-sm border ${isLow ? 'border-red-100 ring-2 ring-red-50' : 'border-gray-100'} relative group cursor-pointer`}
+                        className={`bg-white rounded-3xl p-6 shadow-sm border ${isLow ? 'border-red-100 ring-2 ring-red-50' : 'border-gray-100'} relative group cursor-pointer flex flex-col`}
                     >
                         <div className="flex justify-between items-start mb-4">
                             <div className={`p-3 rounded-2xl bg-opacity-20 ${isLow ? 'text-red-500 bg-red-100' : 'text-white'}`} style={!isLow ? { backgroundColor: `${subject.color}20` } : {}}>
@@ -67,10 +67,9 @@ export const Subjects = () => {
                             </button>
                         </div>
 
-                        <h3 className="font-bold text-lg text-gray-800 mb-1">{subject.name}</h3>
-                        <p className="text-sm text-gray-500 mb-6">{subject.faculty}</p>
+                        <h3 className="font-bold text-xl text-gray-800 mb-6">{subject.name}</h3>
 
-                        <div className="space-y-3">
+                        <div className="space-y-3 flex-1">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500">Progress</span>
                                 <span className={`font-bold ${isLow ? 'text-red-500' : 'text-green-500'}`}>
@@ -85,13 +84,34 @@ export const Subjects = () => {
                                     className={`h-full rounded-full ${isLow ? 'bg-[#FCA5A5]' : 'bg-[#4A90A4]'}`} 
                                 />
                             </div>
-                            <div className="flex justify-between text-xs text-gray-400 pt-2 border-t border-gray-50">
+                            <div className="flex justify-between text-xs text-gray-400 pt-2">
                                 <span>{subject.attendedClasses}/{subject.totalClasses} Attended</span>
                             </div>
                             
                             <div className={`text-xs px-3 py-2 rounded-lg mt-2 ${isLow ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-600'}`}>
                                 {isLow ? safeMessage : "Great attendance! Keep it up."}
                             </div>
+                        </div>
+
+                        {/* Footer Section: Faculty, Target, Tag */}
+                        <div className="mt-6 pt-4 border-t border-gray-50 grid grid-cols-3 gap-2">
+                             <div>
+                                <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Faculty</p>
+                                <div className="flex items-center gap-1.5">
+                                    <User size={14} className="text-gray-400" />
+                                    <p className="text-xs font-semibold text-gray-700 truncate" title={subject.faculty}>
+                                        {subject.faculty.split(' ')[0]}..
+                                    </p>
+                                </div>
+                             </div>
+                             <div className="text-center border-l border-gray-50">
+                                <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Target</p>
+                                <p className="text-xs font-semibold text-gray-700">{subject.targetPercentage}%</p>
+                             </div>
+                             <div className="flex flex-col items-end border-l border-gray-50 pl-2">
+                                <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Color</p>
+                                <div className="w-12 h-4 rounded-full" style={{ backgroundColor: subject.color, opacity: 0.4 }}></div>
+                             </div>
                         </div>
                     </motion.div>
                 );

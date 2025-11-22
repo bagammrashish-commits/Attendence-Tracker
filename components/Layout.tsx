@@ -18,7 +18,7 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
     { icon: Calendar, label: 'Calendar', path: '/calendar' },
     { icon: BookOpen, label: 'Subjects', path: '/subjects' },
-    { icon: CheckCircle, label: 'Mark Attendance', path: '/mark' },
+    // Removed Mark Attendance
     { icon: BarChart2, label: 'Analytics', path: '/analytics' },
     { icon: Bell, label: 'Notifications', path: '/notifications', badge: unreadCount },
     { icon: User, label: 'Profile', path: '/profile' },

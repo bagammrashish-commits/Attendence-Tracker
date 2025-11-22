@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
+import { useApp } from '../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, ChevronLeft, Search, Filter, CheckCircle, XCircle, Clock, MoreVertical, Calendar, ArrowRight, Plus, X, UserPlus } from 'lucide-react';
+import { Users, ChevronLeft, Search, Filter, CheckCircle, XCircle, Clock, MoreVertical, Calendar, ArrowRight, Plus, X, UserPlus, Save } from 'lucide-react';
 
 // Mock Data for Classes
 const CLASSES = [
   { id: 'c1', name: 'Data Structures', code: 'CS-301', time: '09:00 AM - 10:00 AM', students: 45, avgAttendance: 82, color: '#4A90A4' },
-  { id: 'c2', name: 'Algorithms', code: 'CS-302', time: '11:30 AM - 12:30 PM', students: 42, avgAttendance: 78, color: '#FFD29D' },
-  { id: 'c3', name: 'Computer Networks', code: 'CS-305', time: '02:00 PM - 03:00 PM', students: 38, avgAttendance: 65, color: '#818CF8' },
-  { id: 'c4', name: 'Operating Systems', code: 'CS-304', time: '10:00 AM - 11:00 AM', students: 40, avgAttendance: 88, color: '#34D399' },
+  { id: 'c2', name: 'Computer Networks', code: 'CS-305', time: '02:00 PM - 03:00 PM', students: 38, avgAttendance: 65, color: '#FFD29D' },
+  { id: 'c3', name: 'Operating Systems', code: 'CS-304', time: '10:00 AM - 11:00 AM', students: 40, avgAttendance: 88, color: '#34D399' },
+  { id: 'c4', name: 'Mathematics III', code: 'MA-301', time: '01:00 PM - 02:00 PM', students: 42, avgAttendance: 76, color: '#818CF8' },
 ];
+
+// Mapping Teacher Classes to Student Subject IDs (from constants.ts)
+const SUBJECT_MAPPING: Record<string, string> = {
+  'Data Structures': '1',
+  'Computer Networks': '2',
+  'Operating Systems': '3',
+  'Mathematics III': '4',
+  'Software Eng.': '5'
+};
 
 // Mock Data for Students
 const STUDENTS = Array.from({ length: 15 }).map((_, i) => ({
@@ -20,6 +30,7 @@ const STUDENTS = Array.from({ length: 15 }).map((_, i) => ({
 }));
 
 export const TeacherClasses = () => {
+  const { markAttendance, addNotification } = useApp();
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [students, setStudents] = useState(STUDENTS);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,9 +39,14 @@ export const TeacherClasses = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', roll: '' });
 
+  // Toast State
+  const [toast, setToast] = useState<{message: string, visible: boolean}>({ message: '', visible: false });
+
   const handleClassSelect = (id: string) => {
     setSelectedClass(id);
     // In a real app, fetch students for this class ID here
+    // Reset statuses to default Present for the new view or fetch from backend
+    setStudents(STUDENTS.map(s => ({...s, status: 'Present'})));
   };
 
   const toggleStatus = (studentId: string, status: 'Present' | 'Absent' | 'Late') => {
@@ -46,6 +62,35 @@ export const TeacherClasses = () => {
 
   const markAll = (status: 'Present' | 'Absent') => {
     setStudents(prev => prev.map(s => ({ ...s, status })));
+  };
+
+  const handleSubmitAttendance = () => {
+    if (!currentClass) return;
+
+    // 1. Find the Mock Student User (Alex Rivera)
+    // In a real app, we would loop through ALL students and send a batch update API call.
+    // For this demo, we specifically sync "Alex Rivera's" status to the Global App Context
+    // so the student dashboard updates.
+    const mockStudent = students.find(s => s.name === 'Alex Rivera');
+    const subjectId = SUBJECT_MAPPING[currentClass.name];
+
+    if (mockStudent && subjectId) {
+        // Update Global Context
+        markAttendance(subjectId, mockStudent.status);
+    }
+
+    // 2. Show Confirmation
+    addNotification({
+        title: 'Class Register Submitted',
+        message: `Attendance for ${currentClass.name} has been successfully recorded.`,
+        type: 'success'
+    });
+
+    setToast({ message: 'Attendance Submitted Successfully', visible: true });
+    setTimeout(() => setToast({ message: '', visible: false }), 3000);
+    
+    // Optional: Go back to list
+    // setSelectedClass(null); 
   };
 
   const handleAddStudent = (e: React.FormEvent) => {
@@ -119,7 +164,7 @@ export const TeacherClasses = () => {
 
   // Detail View
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20 relative">
        {/* Header with Back Button */}
        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <button 
@@ -132,7 +177,11 @@ export const TeacherClasses = () => {
              <button onClick={() => markAll('Present')} className="px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
                 Mark All Present
              </button>
-             <button className="bg-[#4A90A4] text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-[#4A90A4]/20">
+             <button 
+                onClick={handleSubmitAttendance}
+                className="bg-[#4A90A4] text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-[#4A90A4]/20 hover:bg-[#3B7D91] transition-colors flex items-center gap-2"
+             >
+                <Save size={18} />
                 Submit Attendance
              </button>
           </div>
@@ -213,21 +262,21 @@ export const TeacherClasses = () => {
                             <div className="flex justify-center items-center gap-2">
                                <button 
                                  onClick={() => toggleStatus(student.id, 'Present')}
-                                 className={`p-2 rounded-lg transition-all ${student.status === 'Present' ? 'bg-green-100 text-green-600 ring-2 ring-green-200' : 'text-gray-300 hover:bg-gray-100'}`}
+                                 className={`p-2 rounded-lg transition-all ${student.status === 'Present' ? 'bg-green-100 text-green-600 ring-2 ring-green-200 shadow-sm' : 'text-gray-300 hover:bg-gray-100'}`}
                                  title="Present"
                                >
                                   <CheckCircle size={20} />
                                </button>
                                <button 
                                  onClick={() => toggleStatus(student.id, 'Absent')}
-                                 className={`p-2 rounded-lg transition-all ${student.status === 'Absent' ? 'bg-red-100 text-red-500 ring-2 ring-red-200' : 'text-gray-300 hover:bg-gray-100'}`}
+                                 className={`p-2 rounded-lg transition-all ${student.status === 'Absent' ? 'bg-red-100 text-red-500 ring-2 ring-red-200 shadow-sm' : 'text-gray-300 hover:bg-gray-100'}`}
                                  title="Absent"
                                >
                                   <XCircle size={20} />
                                </button>
                                <button 
                                  onClick={() => toggleStatus(student.id, 'Late')}
-                                 className={`p-2 rounded-lg transition-all ${student.status === 'Late' ? 'bg-yellow-100 text-yellow-600 ring-2 ring-yellow-200' : 'text-gray-300 hover:bg-gray-100'}`}
+                                 className={`p-2 rounded-lg transition-all ${student.status === 'Late' ? 'bg-yellow-100 text-yellow-600 ring-2 ring-yellow-200 shadow-sm' : 'text-gray-300 hover:bg-gray-100'}`}
                                  title="Late"
                                >
                                   <Clock size={20} />
@@ -301,6 +350,21 @@ export const TeacherClasses = () => {
                         </form>
                     </motion.div>
                 </div>
+            )}
+        </AnimatePresence>
+
+        {/* Toast Notification */}
+        <AnimatePresence>
+            {toast.visible && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#1E2A32] text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2 z-50"
+                >
+                    <CheckCircle size={18} className="text-[#86EFAC]" />
+                    <span className="font-medium text-sm">{toast.message}</span>
+                </motion.div>
             )}
         </AnimatePresence>
     </div>

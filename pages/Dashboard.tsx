@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { motion } from 'framer-motion';
-import { Sparkles, AlertTriangle, CheckCircle, Plus, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
+import { Sparkles, AlertTriangle, CheckCircle, Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { generateAttendanceInsights } from '../services/geminiService';
 
@@ -63,10 +63,7 @@ export const Dashboard = () => {
           </h1>
           <p className="text-gray-500">Here's what's happening with your attendance today.</p>
         </div>
-        <Link to="/mark" className="bg-[#1E2A32] text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-gray-900/20 hover:bg-gray-800 transition-colors flex items-center gap-2">
-          <Plus size={18} />
-          Mark Attendance
-        </Link>
+        {/* Removed Mark Attendance Button */}
       </div>
 
       {/* Alerts Banner */}
@@ -199,21 +196,22 @@ export const Dashboard = () => {
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
             <h4 className="font-bold text-gray-800 mb-4">Quick Actions</h4>
             <div className="space-y-3">
-              <Link to="/mark" className="flex items-center justify-between p-3 hover:bg-[#F7F8FA] rounded-xl group transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#E3F2F4] text-[#4A90A4] flex items-center justify-center">
-                    <CheckCircle size={20} />
-                  </div>
-                  <span className="font-medium text-gray-700">Mark Today</span>
-                </div>
-                <span className="text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
-              </Link>
+              {/* Removed Mark Today Link */}
               <Link to="/calendar" className="flex items-center justify-between p-3 hover:bg-[#F7F8FA] rounded-xl group transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#FFF4E5] text-[#FFD29D] flex items-center justify-center">
                     <CalendarIcon size={20} />
                   </div>
                   <span className="font-medium text-gray-700">View Calendar</span>
+                </div>
+                <span className="text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
+              </Link>
+              <Link to="/subjects" className="flex items-center justify-between p-3 hover:bg-[#F7F8FA] rounded-xl group transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#E3F2F4] text-[#4A90A4] flex items-center justify-center">
+                    <CheckCircle size={20} />
+                  </div>
+                  <span className="font-medium text-gray-700">View Subjects</span>
                 </div>
                 <span className="text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
               </Link>
